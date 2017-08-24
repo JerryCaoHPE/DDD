@@ -1,0 +1,15 @@
+#if(!$dataResource.get('isDisplay'))
+<dselect code-type-key="$!dataResource.get('dataSource')" 
+			bind-model="modelData.$!{dataResource.get('bundle')}" 
+			name="$!{dataResource.get('bundle')}" 
+		#if($!{dataResource.get('nullable')}=="是")
+			required
+		#end
+></dselect>
+#else
+<dselect code-type-key="$!dataResource.get('dataSource')" 
+			bind-model="modelData.$!{dataResource.get('bundle')}" 
+			name="$!{dataResource.get('bundle')}" 
+			read-only="readonly"
+></dselect>
+#end

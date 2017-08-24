@@ -1,0 +1,1 @@
+#BillCode:EId,inputCode,operatorCode,operateDate,orgId,remark,billCodeTypeName,billCodeRule,variables,seqences,

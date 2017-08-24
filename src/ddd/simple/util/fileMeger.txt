@@ -1,0 +1,3 @@
+    Sending        D:/angular/workspace/DDD3/src/ddd/simple/action/codeGenerator/CodeGeneratorAction.java
+    Sending        D:/angular/workspace/DDD3/src/ddd/simple/service/listview/ListViewService.java
+    Sending        D:/angular/workspace/DDD3/src/ddd/simple/service/listview/impl/ListViewServiceBean.java

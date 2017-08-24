@@ -1,0 +1,1 @@
+#PrimaryKey:EId,inputCode,operatorCode,operateDate,orgId,remark,serverId,name,fieldName,currentKey,startKey,endKey,maxKey,minKey,banKey,keyType,cachedSize,

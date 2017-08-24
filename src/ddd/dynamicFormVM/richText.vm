@@ -1,0 +1,5 @@
+#if(!$dataResource.get('isDisplay'))
+<div class="ueditor" ng-model="modelData.$!{dataResource.get('bundle')}"></div>
+#else
+<p class="ng-binding" ng-init="trustAsHtml('$!dataResource.get('bundle')')" ng-bind-html="modelData.$!dataResource.get('bundle')"></p>
+#end

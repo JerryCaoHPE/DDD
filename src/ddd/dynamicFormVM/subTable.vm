@@ -1,0 +1,21 @@
+#if(!$dataResource.get('isDisplay'))
+<one-to-many-grid
+	operation-columns="modelData.$!{dataResource.get('bundle')}.operationColumns"
+	operation-bar-buttons="modelData.$!{dataResource.get('bundle')}.operationBarButtons"
+	display-datas="modelData.$!{dataResource.get('bundle')}.value"
+	display-columns="modelData.$!{dataResource.get('bundle')}.displayColumns"
+	display-permissions="modelData.$!{dataResource.get('bundle')}.displayPermissions"
+	entity-name="$!{dataResource.get('bundle')}"
+	each-page-size = $!{dataResource.get('eachPageSize')}>
+</one-to-many-grid> 
+#else
+<one-to-many-grid
+	##operation-columns="modelData.$!{dataResource.get('bundle')}.operationColumns"
+	##operation-bar-buttons="modelData.$!{dataResource.get('bundle')}.operationBarButtons"
+	display-datas="modelData.$!{dataResource.get('bundle')}.value"
+	display-columns="modelData.$!{dataResource.get('bundle')}.displayColumns"
+	display-permissions="modelData.$!{dataResource.get('bundle')}.displayPermissions"
+	entity-name="$!{dataResource.get('bundle')}"
+	each-page-size = $!{dataResource.get('eachPageSize')}>
+</one-to-many-grid> 
+#end

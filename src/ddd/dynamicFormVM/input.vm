@@ -1,0 +1,18 @@
+#if(!$dataResource.get('isDisplay'))
+<input 
+	type="text"
+	class="form-control" 
+	ng-model="modelData.$!{dataResource.get('bundle')}" 
+	name="$!dataResource.get('bundle')" 
+	#if($!{dataResource.get('nullable')}=="是")
+		required
+	#end
+	#if($dataResource.get('validation'))
+	pattern="$!dataResource.get('validation')"
+	#end
+/>
+#else
+<span class="label label-default">{{modelData.$!dataResource.get('bundle')}}</span>
+##<input type="text" class="form-control" ng-model="modelData.$!{dataResource.get('bundle')}" ng-disabled="true"/>
+#end
+

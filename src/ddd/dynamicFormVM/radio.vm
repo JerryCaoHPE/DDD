@@ -1,0 +1,16 @@
+#if(!$dataResource.get('isDisplay'))
+#foreach($option in $dataResource.get('dataSource'))
+	<label 
+	#if($!dataResource.get('orientation') == '横排')
+	style="display:inline;margin:8px;"
+	#else
+	style="display:block;"
+	#end
+	>
+		<input type="radio" ng-model="modelData.$!{dataResource.get('bundle')}" value="$option"/>$option
+	</label>
+#end　
+#else
+<span class="label label-default">{{modelData.$!dataResource.get('bundle')}}</span>
+##<input type="text" class="form-control" ng-model="modelData.$!{dataResource.get('bundle')}" ng-disabled="true"/>
+#end

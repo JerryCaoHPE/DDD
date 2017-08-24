@@ -1,0 +1,4 @@
+${EntityNameLow}Service.${methodName}=function(dddarg1,sucesscb,errorcb)
+{
+		${EntityNameLow}Service.save({action:"${methodName}"},{dddarg2},sucesscb,errorcb);
+};

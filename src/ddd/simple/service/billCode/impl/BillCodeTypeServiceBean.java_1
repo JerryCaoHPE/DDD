@@ -1,0 +1,134 @@
+package ddd.simple.service.billCode.impl;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ddd.base.exception.DDDException;
+import ddd.simple.dao.billCode.BillCodeTypeDao;
+import ddd.simple.entity.billCode.BillCodeType;
+import ddd.simple.service.billCode.BillCodeSeqTypeService;
+import ddd.simple.service.billCode.BillCodeTypeService;
+
+@Service
+@Transactional
+public class BillCodeTypeServiceBean  implements BillCodeTypeService{
+	final Logger logger = LoggerFactory.getLogger(BillCodeTypeServiceBean.class);
+
+	@Resource(name="billCodeTypeDaoBean")
+	private BillCodeTypeDao billCodeTypeDao;
+	
+	@Resource(name="billCodeSeqTypeServiceBean")
+	private BillCodeSeqTypeService billCodeSeqTypeService;
+	 
+//  缓存对象
+//	@Resource(name = "camCache")
+//	private Ehcache cache;
+	
+	public void deleteBillCodeTypeById(Long billCodeTypeId){
+		try{
+		 	this.billCodeTypeDao.delete(BillCodeType.class,billCodeTypeId);
+		 	this.billCodeTypeDao.flush();
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("deleteBillCodeTypeByIdError",e.getMessage(),e);
+	        throw ex;			
+		}
+	}
+	
+	public BillCodeType findBillCodeTypeById(Long billCodeTypeId){
+		try{	
+			BillCodeType foundBillCodeType = this.billCodeTypeDao.findById(BillCodeType.class,billCodeTypeId);
+		 	return foundBillCodeType;
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("findBillCodeTypeByIdError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	} 
+	
+  
+	public BillCodeType saveBillCodeType(BillCodeType billCodeType){
+		try{		
+			BillCodeType savedBillCodeType = (BillCodeType)this.billCodeTypeDao.merge(billCodeType);
+		 	this.billCodeTypeDao.flush();			
+		 	return savedBillCodeType;			
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("saveBillCodeTypeError",e.getMessage(),e);
+	        throw ex;			
+		}			
+	}
+
+	public BillCodeType updateBillCodeType(BillCodeType billCodeType){
+		try{		
+			BillCodeType updatedBillCodeType = (BillCodeType)this.billCodeTypeDao.merge(billCodeType);
+		 	this.billCodeTypeDao.flush();			
+		 	return updatedBillCodeType;			
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("updateBillCodeTypeError",e.getMessage(),e);
+	        throw ex;			
+		}			
+	}
+
+	public void deleteBillCodeType(BillCodeType billCodeType){
+		try{	  
+			this.billCodeTypeDao.delete(billCodeType);
+			this.billCodeTypeDao.flush();
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("deleteBillCodeTypeError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	}
+	
+	public String genBillCode(String billCodeTypeName, Map<String, String> params, Boolean isTemp){
+		try{	  
+			List<BillCodeType> billCodeTypes = this.billCodeTypeDao.findBillCodeTypeByName(billCodeTypeName);
+			if(billCodeTypes.size() > 0){
+				BillCodeType billCodeType = billCodeTypes.get(0);
+				String billcode = billCodeType.getBillCodeRule();
+				String find = "(?<=\\u007B).*?(?=\\u007D)";
+				Pattern pattern = Pattern.compile(find);
+				Matcher matcher = pattern.matcher(billcode);
+				Set<String> keys = params.keySet();
+				
+				for(String key : keys)
+				{
+					billcode = billcode.replace(key.toString(), params.get(key).toString());
+				}
+				
+				while(matcher.find())
+				{
+					String seqType = matcher.group();
+					String seq = this.billCodeSeqTypeService.genBillCodeSeq(seqType, params, isTemp);
+					seqType = "{" + seqType + "}";
+					billcode = billcode.replace(seqType, seq);
+				}
+				return billcode;
+			}
+			else
+			{
+				DDDException dex = new DDDException("未找到编码类别", "未找到编码类别");
+				throw dex;
+			}
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("genBillCodeError",e.getMessage(),e);
+	        throw ex;			
+		}
+	}
+
+
+
+}

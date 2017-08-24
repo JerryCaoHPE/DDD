@@ -1,0 +1,1 @@
+#Organization:EId,inputCode,operatorCode,operateDate,orgId,remark,code,name,fullCode,shortCode,address,manager,outGB,email,webSite,linkTel,linkMan,enable,description,creatTime,modifyTime,organizationParentId,children,printName,printEngishName,employees,department,printServiceFax,printServiceEMail,printServiceWeb,printReserved1,printReserved2,printReserved3,printReserved4,

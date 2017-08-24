@@ -1,0 +1,9 @@
+WebContent\ddd\simple\view\main\js\WelcomeController.js
+WebContent\ddd\simple\view\main\js\Welcome.route.js
+WebContent\ddd\js\base\main.js
+WebContent\ddd\index.html
+WebContent\ddd\js\base\app.js
+WebContent\ddd\simple\view\main\js\Main.route.js
+WebContent\ddd\vip\view\main\js\Main.route.js
+WebContent\ddd\vip\js\base\vipApp.js
+WebContent\ddd\vip\js\base\vipMain.js

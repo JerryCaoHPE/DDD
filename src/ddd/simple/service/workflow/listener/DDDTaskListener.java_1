@@ -1,0 +1,103 @@
+package ddd.simple.service.workflow.listener;
+
+import org.activiti.engine.delegate.DelegateTask;
+import org.activiti.engine.delegate.TaskListener;
+
+public abstract class DDDTaskListener implements TaskListener
+{
+	
+	private DDDDelegateTask dddDelegateTask;
+	
+	public DDDDelegateTask getDddDelegateTask() {
+		return dddDelegateTask;
+	}
+
+	public void setDddDelegateTask(DDDDelegateTask dddDelegateTask) {
+		this.dddDelegateTask = dddDelegateTask;
+	}
+
+	public abstract void execute();
+
+	@Override
+	public void notify(DelegateTask delegateTask) 
+	{
+		this.setDddDelegateTask(new DDDDelegateTask(delegateTask));
+		execute();
+	}
+	
+	/**
+	 * 获取实体Id
+	 * @return
+	 */
+	public Long getEntityId()
+	{
+		return (Long)this.dddDelegateTask.getVariable("实体Id"); 
+	}
+
+	/**
+	 * 获取流程定义Key
+	 * @return
+	 */
+	public String getProcessDefinitionKey()
+	{
+		return (String)this.dddDelegateTask.getVariable("流程定义Key");
+	}
+	
+	/**
+	 * 获取视图的Key
+	 * @return
+	 */
+	public String getListViewKey()
+	{
+		return (String)this.dddDelegateTask.getVariable("视图Key");
+	}
+	
+	/**
+	 * 获取流程描述
+	 * @return
+	 */
+	public String getDescription()
+	{
+		return (String)this.dddDelegateTask.getVariable("流程描述");
+	}
+	
+	/**
+	 * 获取流程变量的值
+	 * @param variableName 流程变量名
+	 * @return
+	 */
+	public Object getProcessVariable(String variableName)
+	{
+		return this.dddDelegateTask.getVariable(variableName);
+	}
+	
+	/**
+	 * 设置流程变量的值
+	 * @param variableName 流程变量名
+	 * @param variableValue 流程变量的值
+	 */
+	public void setProcessVariable(String variableName,Object variableValue)
+	{
+		this.dddDelegateTask.setProcessVariable(variableName, variableValue);
+	}
+	
+	/**
+	 * 获取实体字段名对应的值
+	 * @param fieldName 字段名 
+	 * @return
+	 */
+	public Object getProcessVariableByFieldName(String fieldName)
+	{
+		return this.dddDelegateTask.getVariableByFieldName(fieldName);
+	}
+	
+	/**
+	 * 设置实体字段的值
+	 * @param fieldName 字段名
+	 * @param fieldValue 值
+	 */
+	public void setProcessVariableByFieldName(String fieldName,String fieldValue)
+	{
+		this.dddDelegateTask.setProcessVariableByFieldName(fieldName,fieldValue);
+	}
+}

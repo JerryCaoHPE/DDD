@@ -1,0 +1,22 @@
+package ddd.simple.dao.billCode.impl;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import ddd.simple.dao.base.BaseDao;
+import ddd.simple.dao.billCode.BillCodeSeqTypeDao;
+import ddd.simple.entity.billCode.BillCodeSeqType;
+
+@Service
+public class BillCodeSeqTypeDaoBean extends BaseDao implements BillCodeSeqTypeDao {
+	final Logger logger = LoggerFactory.getLogger(BillCodeSeqTypeDaoBean.class);
+	
+	@SuppressWarnings("unchecked")
+	public List<BillCodeSeqType> findBillCodeSeqTypeByName(String seqType){
+		String hql = "from BillCodeSeqType b where b.billCodeSeqTypeName = '" + seqType + "'";
+		return (List<BillCodeSeqType>) this.find(hql);
+	}
+}

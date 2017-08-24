@@ -1,0 +1,341 @@
+package ddd.simple.service.workflow.impl;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import net.sf.json.JSONObject;
+
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.ManagementService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.task.Task;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ddd.simple.dao.workflow.CheckOptionDao;
+import ddd.simple.entity.permission.Operator;
+import ddd.simple.entity.workflow.CheckOption;
+import ddd.simple.service.base.BaseService;
+import ddd.simple.service.permission.OperatorService;
+import ddd.simple.service.workflow.CheckOptionService;
+import ddd.simple.service.workflow.WorkflowExternalService;
+
+@Service
+@Transactional
+public class WorkflowExternalServiceBean extends BaseService implements WorkflowExternalService {
+
+	@Resource(name = "taskService")
+	private TaskService taskService;
+
+	@Resource(name = "runtimeService")
+	private RuntimeService runtimeService;
+	
+	@Resource(name = "historyService")
+	private HistoryService historyService;
+	
+	@Resource(name = "managementService")
+	private ManagementService managementService;
+	
+	@Resource(name = "checkOptionServiceBean")
+	private CheckOptionService checkOptionService;
+	
+	@Resource(name = "operatorServiceBean")
+	private OperatorService operatorService;
+	
+	@Resource(name = "checkOptionDaoBean")
+	private CheckOptionDao checkOptionDao;
+	
+	/**
+	 * 查询待办任务*/
+	@Override
+	public String findNonHandleTasks(Map<String, String> param) {
+		
+		String resultContent = "[";
+		
+		try{
+			/*根据登录名称查找操作员姓名*/
+			Operator operator = this.operatorService.findOperatorByCode(this.getParameter(param, "operatorCode"));
+			String userName = operator.getName();
+			
+			List<Task> nonHandleTasks = new ArrayList<Task>();
+
+			// 分配到当前登陆用户的任务
+			List<Task> assigneeTasks = taskService.createTaskQuery().taskAssignee(userName).list();
+
+			// 未签收的任务
+			List<Task> candidateTasks = taskService.createTaskQuery().taskCandidateUser(userName).list();
+
+			nonHandleTasks.addAll(assigneeTasks);
+			nonHandleTasks.addAll(candidateTasks);
+			
+			String[] config = new String[]{"execution","taskDefinition"};
+
+			for(int i=0;i<nonHandleTasks.size();i++)
+		 	{
+		 		Task task = nonHandleTasks.get(i);
+		 		task.setDescription(task.getDescription().replaceAll("\n", ""));
+		 		
+		 		String processInstanceId = task.getProcessInstanceId();
+		 		
+		 		String emergencyStatus = (String)runtimeService.getVariable(processInstanceId,"紧急状态");
+		 		
+		 		if("普通".equals(emergencyStatus))
+		 		{
+		 			task.setPriority(0);
+		 		}
+		 		else if("紧急".equals(emergencyStatus))
+		 		{
+		 			task.setPriority(1);
+		 		}
+		 		resultContent += turnObjectToJSON(task, task.getClass(), config);
+		 		
+		 		if(nonHandleTasks.size()-i > 1){
+		 			resultContent += ",";
+		 		}
+		 	}
+			
+			return generateResultString("success", resultContent+"]", null);
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			return generateResultString("failed", e.getMessage(), null);
+		}
+		
+	}
+	
+	public String findCompletedTasks(Map<String, String> param)
+	{
+		String resultContent = "[";
+		String[] config = new String[]{};
+		try {
+			Operator operator = this.operatorService.findOperatorByCode(getParameter(param, "operatorCode"));
+			String userName = operator.getName();
+			
+			List<HistoricTaskInstance> historicTaskInstances = this.historyService.createHistoricTaskInstanceQuery().taskAssignee(userName).finished().list();
+
+			for(int i=0;i<historicTaskInstances.size();i++)
+			{
+				HistoricTaskInstance completedTask = historicTaskInstances.get(i);
+				completedTask.getAssignee();
+				//resultContent += this.turnObjectToJSON(completedTask, completedTask.getClass(), config);
+				resultContent += JSONObject.fromObject(completedTask).toString();
+				if(historicTaskInstances.size() - i > 1)
+				{
+					resultContent += ",";
+				}
+			}
+			return generateResultString("success", resultContent+"]", null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return generateResultString("failed", e.getMessage(), null);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String findCheckOptionByProcessInstanceId(Map<String, String> param)
+	{
+		String resultContent = "[";
+		try
+		{
+			Long processInstanceId = Long.parseLong(getParameter(param, "processInstanceId"));
+			String hql = "select * from CheckOption o where o.processInstanceId='" + processInstanceId + "' order by o.checkTime asc";
+			Set<Map<String, Object>> findCheckOption = this.checkOptionDao.query(hql);
+			for(int i=0;i<findCheckOption.size();i++)
+			{
+				resultContent += JSONObject.fromObject(findCheckOption.get(i)).toString();
+				if(findCheckOption.size() - i > 1)
+				{
+					resultContent += ",";
+				}
+			}
+			resultContent += "]";
+			return generateResultString("success", resultContent, null);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+			return e.getMessage();
+		}
+	}
+	
+	public String handleTask(Map<String, String> param)
+	{
+		return null;
+	}
+	
+	/**
+	 * 签收*/
+	@Override
+	public String claim(Map<String, String> param) {
+
+		String taskId = "";
+		try {
+			taskId = getParameter(param, "taskId");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return generateResultString("failed", e.getMessage(), null);
+		}
+		
+		Operator operator = this.getLoginUser().getLoginOperator();
+		String userName = operator.getName();
+		
+		Task task = this.taskService.createTaskQuery().taskId(taskId).singleResult();
+		
+		String executionId = task.getExecutionId();
+		
+		
+		Long formId = (Long)this.runtimeService.getVariable(executionId,"实体Id");
+		String formType = (String)this.runtimeService.getVariable(executionId,"对应表名");
+		
+		Integer count =  managementService.getTableCount().get("ACT_RU_IDENTITYLINK").intValue();
+		List<Map<String,Object>> identityLinks = managementService.createTablePageQuery().tableName("ACT_RU_IDENTITYLINK").listPage(0,count).getRows();
+		String  assigneePeople = "";
+		for(int i=0;i<identityLinks.size();i++)
+		{
+			Map<String,Object> identityLink = identityLinks.get(i);
+			String task_id = (String)identityLink.get("TASK_ID_");
+			String type = (String)identityLink.get("TYPE_");
+			
+			if(task_id != null && type != null && task_id.equals(task.getId()) && type.equals("candidate"))
+			{
+				assigneePeople = assigneePeople + "," + (String)identityLink.get("USER_ID_");
+			}
+		}
+		
+		if(assigneePeople.length() > 0)
+		{
+			assigneePeople = assigneePeople.substring(1);
+		}
+		
+		String processInstanceId = task.getProcessInstanceId();
+		CheckOption checkOption = new CheckOption();
+		checkOption.setProcessInstanceId(processInstanceId);
+		checkOption.setTaskName(task.getName() + "-签收");
+		checkOption.setCheckTime(new Date());
+		checkOption.setCheckResult("签收成功");
+		checkOption.setManagerOption("签收任务");
+		checkOption.setCheckPeople(userName);
+		checkOption.setAssigneePeople(assigneePeople);
+		checkOption.setFormId(formId);
+		checkOption.setFormType(formType);
+		checkOption.setDescription(task.getDescription());
+		checkOption.setManagementItemName(this.runtimeService.getVariable(processInstanceId, "managementItemName").toString());
+		checkOption.setOrganizationName(this.runtimeService.getVariable(processInstanceId, "organizationName").toString());
+		
+		this.checkOptionService.saveCheckOption(checkOption);
+		
+		this.taskService.claim(taskId, userName);
+		
+		return generateResultString("success", "签收成功!", null);
+	}
+	
+	/**
+	 * 办理*/
+//	public String handle(Map<String, String> param)
+//	{
+//		
+//	}
+	
+	private String getParameter(Map<String,String> param, String paramName) throws Exception{
+		if(param.containsKey(paramName)){
+			return param.get(paramName);
+		}
+		else{
+			throw new Exception("没有找到属性:"+paramName);
+		}
+	}
+	
+	private String turnObjectToJSON(Object task, Class<?> clazz, String[] config){
+		try {
+			String json = "{";
+			Field[] fields = clazz.getDeclaredFields();
+			List<String> methods = new ArrayList<String>();
+			List<String> exclude = new ArrayList<String>();
+			for(Method method:clazz.getMethods()){
+				methods.add(method.getName());
+			}
+			for(String unInclude:config){
+				exclude.add(unInclude);
+			}
+			
+			for(Field field:fields){
+				System.out.println(field.getName());
+				Object result;
+				if(exclude.contains(field.getName())){
+					continue;
+				}
+				if(field.getModifiers() == Modifier.PROTECTED || field.getModifiers() == Modifier.PRIVATE){
+					String methodName = "get"+field.getName().substring(0, 1)
+							.toUpperCase()+field.getName().substring(1);
+					if(!methods.contains(methodName))
+					{
+						continue;
+					}
+					Method method = clazz.getMethod(methodName);
+					result = method.invoke(task);
+				}
+				else if(field.getModifiers() == Modifier.PUBLIC)
+				{
+					result = field.get(task);
+				}
+				else
+				{
+					continue;
+				}
+				
+				Class<?> type = field.getType();
+				if(type.equals(String.class)){
+					json = json + "\""+field.getName()+"\":\""+String.valueOf(result)+"\",";
+				}
+				else if(type.isPrimitive()){
+					json = json + "\""+field.getName()+"\":"
+							+((result==null)?"\"null\"":String.valueOf(result))+",";
+				}
+				else{
+					String opJson = "\"null\"";
+					if(result != null){
+						opJson = JSONObject.fromObject(type.cast(result)).toString();
+					}
+					json = json + "\""+field.getName()+"\":"+opJson+",";
+				}
+			}
+			
+			json = json.substring(0, json.length()-1) + "}";
+			
+			return json;
+			
+//			return "{\"id\":\""+task.getId()+"\",\"owner\":\""+task.getOwner()
+//					+"\",\"assignee\":\""+task.getAssignee()+"\",\"parentTaskId\":\""+task.getParentTaskId()
+//					+"\",\"name\":\""+task.getName()
+//					+"\",\"description\":\""+task.getDescription()
+//					+"\",\"priority\":"+task.getPriority()
+//					+",\"createTime\":"+((task.getCreateTime()==null)?"\"null\"":JSONObject.fromObject(task.getCreateTime()))
+//					+",\"dueDate\":"+((task.getDueDate()==null)?"\"null\"":JSONObject.fromObject(task.getDueDate()))
+//					+",\"executionId\":\""+task.getExecutionId()
+//					+"\",\"processInstanceId\":\""+task.getProcessInstanceId()
+//					+"\",\"processDefinitionId\":\""+task.getProcessDefinitionId()
+//					+"\",\"taskDefinitionKey\":\""+task.getTaskDefinitionKey()+"\"}";
+		}catch (Exception e) {
+			e.printStackTrace();
+			return "\"此对象转换Json失败!\"";
+		}
+	}
+	
+	/**
+	 * 生成用于返回的字符串*/
+	private String generateResultString(String resultValue, String resultContent, String remark){
+		String json = "{\"resultValue\":\""+resultValue+"\",\"resultContent\":"+
+				resultContent+",\"remark\":\""+remark+"\"}";
+		return json;
+	}
+
+}

@@ -1,0 +1,18 @@
+package ddd.simple.service.billCode;
+
+import ddd.simple.service.base.BaseService; 
+import ddd.simple.entity.billCode.*;
+
+public interface BillCodeSeqService {
+	public  void deleteBillCodeSeqById( Long billCodeSeqId);
+	
+	public BillCodeSeq findBillCodeSeqById( Long billCodeSeqId);
+	 
+	public BillCodeSeq saveBillCodeSeq(BillCodeSeq billCodeSeqId);
+
+	public BillCodeSeq updateBillCodeSeq(BillCodeSeq billCodeSeqId);
+
+	public void deleteBillCodeSeq(BillCodeSeq billCodeSeqId);
+	
+	public String genBillCodeSeq(String billCodeSeqName, BillCodeSeqType billCodeSeqType, Boolean isTemp);
+}

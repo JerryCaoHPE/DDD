@@ -1,0 +1,245 @@
+package ddd.develop;
+
+import java.awt.BorderLayout;
+import java.awt.Checkbox;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import ddd.base.util.FileUtil;
+import ddd.base.util.MD5Util;
+
+public class ProjectFileSynchro {
+	/**
+	 * 同步框架文件到其他子系统的文件中
+	 * 流程如下：
+	 * 将DDD3中需要同步目录下的所有文件和MD5码读出
+	 * 将每一个子系统中相同目录下的所有文件和MD5码读出
+	 * 遍历DDD3框架中的每一个文件
+	 * 1）如果框架中存在该文件，而子系统中不存在——新建文件
+	 * 2）如果框架中存在，子系统中也存在——同步（
+	 * 将该文件的MD5码与子系统中的文件的MD5码进行对比，
+	 * 如果相同则不采取任何操作
+	 * 如果不同则使用DDD3框架中的文件的文件内容替换子系统中对应文件的内容
+	 * ）
+	 * */
+	public static ArrayList<String> singleField = new ArrayList<String>();
+	public static ArrayList<String> childSystems = new ArrayList<String>(); 
+	public static ArrayList<String> updataFiles = new ArrayList<String>();
+	public static ArrayList<String> newFiles = new ArrayList<String>();
+	public static ArrayList<String> whiteList = new ArrayList<String>();
+	
+	public static void main(String[] args){
+		//childSystems.add("CMS");
+		childSystems.add("DDDOA4");
+		//childSystems.add("FAO");
+		//childSystems.add("QOSMS");
+		//childSystems.add("FWP");
+		//childSystems.add("SWP");
+		//childSystems.add("SWPF");
+		
+		try{
+			//获取白名单中的所有文件的绝对路径
+			getWhiteList();
+			//获取DDD3框架中指定文件夹中所有文件和文件的MD5码
+			HashMap<String,HashMap<String,String>>  DDD3FilesAndMD5Code = getDDD3FilesAndMD5Code();
+			for(int i =0;i<childSystems.size();i++){
+				//获取子系统中与框架文件对应的目录下的所有文件和文件的MD5码
+				HashMap<String,HashMap<String,String>>  childSystemFilesAndMD5Code =  getChildSystemFilesAndMD5Code(childSystems.get(i));
+				//遍历DDD3框架中的所有文件与当前子系统的文件相对比从而进行同步
+				synchro(DDD3FilesAndMD5Code,childSystemFilesAndMD5Code,childSystems.get(i));
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		final JFrame jf = new JFrame();
+		
+		JPanel updatePanel = new JPanel(new GridLayout(0,1));
+		JPanel updatePanel1 = new JPanel(new GridLayout(0,1));
+		updatePanel.setBorder (BorderFactory.createTitledBorder ("待更新文件"));
+		final ArrayList<Checkbox> updateCheckBox = new ArrayList<Checkbox>();
+		for(int i =0;i<updataFiles.size();i++){
+			Checkbox c = new Checkbox(updataFiles.get(i), true);
+			updatePanel1.add(c);
+			updateCheckBox.add(c);
+		}
+		
+		JPanel newPanel = new JPanel(new GridLayout(0,1));
+		JPanel newPanel1 = new JPanel(new GridLayout(0,1));
+		newPanel.setBorder (BorderFactory.createTitledBorder ("待新增文件"));
+		final ArrayList<Checkbox> newCheckBox = new ArrayList<Checkbox>();
+		for(int i =0;i<newFiles.size();i++){
+			Checkbox c = new Checkbox(newFiles.get(i), true);
+			newPanel1.add(c);
+			newCheckBox.add(c);
+		}
+		
+		
+		JButton bt = new JButton("确定");
+		bt.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				ArrayList<Integer> updataRemove = new ArrayList<Integer>();
+				for(int i =0 ;i<updateCheckBox.size();i++){
+					Checkbox cb = updateCheckBox.get(i);
+					if(!cb.getState()){
+						updataFiles.remove(cb.getLabel());
+					}
+				}
+				for(int i =0 ;i<newCheckBox.size();i++){
+					Checkbox cb = newCheckBox.get(i);
+					if(!cb.getState()){
+						newFiles.remove(cb.getLabel());
+					}
+				}
+				new FileMeger(updataFiles,newFiles,null,childSystems);
+				jf.dispose();
+			}
+		});
+		
+		JPanel centPanel = new JPanel(new GridLayout(2,1));
+		updatePanel.add(new JScrollPane(updatePanel1));
+		newPanel.add(new JScrollPane(newPanel1));
+		centPanel.add(updatePanel);
+		centPanel.add(newPanel);
+		
+		jf.setLayout(new BorderLayout());
+		jf.add(centPanel,BorderLayout.CENTER);
+		jf.add(bt,BorderLayout.SOUTH);
+		jf.setTitle("项目文件同步");
+		jf.setSize(1200,600);
+		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jf.setVisible(true);
+	}
+	public static void synchro(HashMap<String,HashMap<String,String>> ddd3,HashMap<String,HashMap<String,String>> childSystem,String childSystemName){
+		//遍历框架的每一个目录下的所有文件
+		Iterator<String> ite = ddd3.keySet().iterator();
+		while(ite.hasNext()){
+			String directory = ite.next();
+			//获取DDD3该文件夹下的所有文件和MD5码的HashCode
+			HashMap<String,String> ddd3FilesAndMD5Code =  ddd3.get(directory);
+			//获取子系统该文件夹下的所有文件和MD5码的HashCode
+			HashMap<String,String> childSystemFiledsAndMD5Code = childSystem.get(directory.replace("DDD3", childSystemName));
+			//将框架中的每一个文件与子系统中的每一个文件进行对于
+			//思路：直接将框架中的每一个文件作为key(将DDD3换成子系统的名字)到子系统中的HashMap中去取值，如果能取到在比较MD5进行判断是更新还是忽略，如果不能取到则新增
+			Iterator<String> fileIte = ddd3FilesAndMD5Code.keySet().iterator();
+			while(fileIte.hasNext()){
+				
+				String fileName = fileIte.next();
+				//对在白名单中的文件夹中的文件/文件 不进行对比
+				if(!(whiteList.contains(fileName))){
+					//如果能取到值则说明是找到了，在对MD5码进行验证
+					//如果取出来的值是空，则需要新增
+					String childSystemFileMD5Code = childSystemFiledsAndMD5Code.get(fileName.replace("DDD3",childSystemName));
+					if(childSystemFileMD5Code==null){
+						//需要在子系统中新增该文件
+						newFiles.add(fileName);
+					}else{
+						//更新判断
+						String ddd3FileMD5Code = ddd3FilesAndMD5Code.get(fileName);
+						if(!(ddd3FileMD5Code.equals(childSystemFileMD5Code))){
+							updataFiles.add(fileName);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	//获取框架中的指定目录下的所有的文件的绝对路径和MD5码
+	public static HashMap<String,HashMap<String,String>> getDDD3FilesAndMD5Code() throws Exception{
+		String [] directories = readDDD3SynchroDirectory();
+		HashMap<String,HashMap<String,String>> DDD3FilesAndMD5Code = getFilesAndMD5Code(directories);
+		
+		/*for(int i =0;i<singleField.size();i++){
+			File file = new File(singleField.get(i));
+			HashMap<String,String> temp = new HashMap<String,String>();
+			temp.put(file.getPath(), MD5Util.getMD5(file));
+			DDD3FilesAndMD5Code.put(file.getParent(), temp);
+		}
+	*/
+		
+		return DDD3FilesAndMD5Code;
+	}
+	
+	//获取子系统分的对应文件夹的所有文件和MD5码
+	public static HashMap<String,HashMap<String,String>> getChildSystemFilesAndMD5Code(String childSystemName) throws Exception{
+		String [] directories = readChildSystemSynchroDirectory(childSystemName);
+		HashMap<String,HashMap<String,String>> childSystemFilesAndMD5Code = getFilesAndMD5Code(directories);
+		return childSystemFilesAndMD5Code;
+	}
+	
+	//对于一个给定的文件夹数组，获取该文件夹中的每一个文件的绝对路径和该文件的MD5码
+	public static HashMap<String,HashMap<String,String>> getFilesAndMD5Code(String [] directories) throws Exception{
+		if(directories == null){
+			return new HashMap<String,HashMap<String,String>>();
+		}
+		HashMap<String,HashMap<String,String>> allDirectoryWithMD5Code = new HashMap<String,HashMap<String,String>>();
+		for(int i =0;i<directories.length;i++){
+			//建立一个HashMap，key：文件夹路径 ，value：一个HashMap（key是该文件夹下的文件的路径，value是该文件对应的MD5码）
+			HashMap<String,String> oneDirectoryWithMD5Code = new HashMap<String,String>();
+			List<String> allFiles = FileUtil.getFilePathsBySuffix(new File(directories[i]), "");
+			for(int j =0;j<allFiles.size();j++){
+				oneDirectoryWithMD5Code.put(allFiles.get(j), MD5Util.getMD5(allFiles.get(j)));
+			}
+			allDirectoryWithMD5Code.put(directories[i],oneDirectoryWithMD5Code);
+		}
+		return allDirectoryWithMD5Code;
+	}
+	
+	
+	//读取DDD3框架中需要同步的文件的绝对路径
+	public static String [] readDDD3SynchroDirectory() throws Exception{
+		return readSynchroPath();
+	}
+	
+	public static String [] readChildSystemSynchroDirectory(String childSystemName) throws Exception{
+		String [] ddd3FilesDirectory = readDDD3SynchroDirectory();
+		for(int i =0;i<ddd3FilesDirectory.length;i++){
+			ddd3FilesDirectory[i] = ddd3FilesDirectory[i].replace("DDD3", childSystemName);
+		}
+		return ddd3FilesDirectory;
+	}
+	
+	//读取需要同步的文件夹的路径
+	public static String []  readSynchroPath() throws Exception{
+		String temp = FileUtil.readeString(new File("D:\\angular\\workspace\\DDD3\\src\\ddd\\simple\\util\\synchroPath.txt"));
+		/*String [] temps = temp.split("#");
+		String [] dire = new String[temps.length];
+		for(int i =0;i<temps.length;i++){
+			if(new File(temps[i]).isFile()){
+				singleField.add(temps[i]);
+			}else{
+				dire[i] = temps[i];
+			}
+			
+		}
+		return dire;*/
+		return temp.split("\n");
+	}
+	public static void getWhiteList() throws Exception{
+		String temp = FileUtil.readeString(new File("D:\\angular\\workspace\\DDD3\\src\\ddd\\simple\\util\\whiteList.txt"));
+		String [] temps = temp.split("\n");
+		for(int i=0;i<temps.length;i++){
+			String name = temps[i];
+			File file = new File(name);
+			if(file.isDirectory()){
+				whiteList.addAll(FileUtil.getFilePathsBySuffix(new File(name), ""));
+			}else{
+				whiteList.add(name);
+			}
+			
+		}
+	}
+}

@@ -1,0 +1,139 @@
+package ddd.simple.service.billCode.impl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ddd.base.exception.DDDException;
+import ddd.simple.dao.base.BaseDao;
+import ddd.simple.dao.billCode.BillCodeSeqDao;
+import ddd.simple.entity.billCode.BillCodeSeq;
+import ddd.simple.entity.billCode.BillCodeSeqType;
+import ddd.simple.service.billCode.BillCodeSeqService;
+
+@Service
+@Transactional
+public class BillCodeSeqServiceBean  implements BillCodeSeqService{
+	final Logger logger = LoggerFactory.getLogger(BillCodeSeqServiceBean.class);
+
+	@Resource(name="billCodeSeqDaoBean")
+	private BillCodeSeqDao billCodeSeqDao;
+	 
+//  缓存对象
+//	@Resource(name = "camCache")
+//	private Ehcache cache;
+	
+	public void deleteBillCodeSeqById(Long billCodeSeqId){
+		try{
+		 	this.billCodeSeqDao.delete(BillCodeSeq.class,billCodeSeqId);
+		 	this.billCodeSeqDao.flush();
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("deleteBillCodeSeqByIdError",e.getMessage(),e);
+	        throw ex;			
+		}
+	}
+	
+	public BillCodeSeq findBillCodeSeqById(Long billCodeSeqId){
+		try{	
+			BillCodeSeq foundBillCodeSeq = this.billCodeSeqDao.findById(BillCodeSeq.class,billCodeSeqId);
+		 	return foundBillCodeSeq;
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("findBillCodeSeqByIdError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	} 
+	
+  
+	public BillCodeSeq saveBillCodeSeq(BillCodeSeq billCodeSeq){
+		try{		
+			BillCodeSeq savedBillCodeSeq = (BillCodeSeq)this.billCodeSeqDao.merge(billCodeSeq);
+		 	this.billCodeSeqDao.flush();			
+		 	return savedBillCodeSeq;			
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("saveBillCodeSeqError",e.getMessage(),e);
+	        throw ex;			
+		}			
+	}
+
+	public BillCodeSeq updateBillCodeSeq(BillCodeSeq billCodeSeq){
+		try{		
+			BillCodeSeq updatedBillCodeSeq = (BillCodeSeq)this.billCodeSeqDao.merge(billCodeSeq);
+		 	this.billCodeSeqDao.flush();			
+		 	return updatedBillCodeSeq;			
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("updateBillCodeSeqError",e.getMessage(),e);
+	        throw ex;			
+		}			
+	}
+
+	public void deleteBillCodeSeq(BillCodeSeq billCodeSeq){
+		try{	  
+			this.billCodeSeqDao.delete(billCodeSeq);
+			this.billCodeSeqDao.flush();
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("deleteBillCodeSeqError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	}
+	
+	public String genBillCodeSeq(String billCodeSeqName, BillCodeSeqType billCodeSeqType, Boolean isTemp){
+		try{	  
+			BillCodeSeq billCodeSeq = this.findBillCodeSeqByName(billCodeSeqName, billCodeSeqType);
+			Long curSeq = billCodeSeq.getBillCodeSeqNo() + 1;
+			String seq = "00000000000000000000" + curSeq; 
+			int beginIndex = (int) (seq.length() - billCodeSeq.getLength());
+			seq = seq.substring(beginIndex, seq.length());
+			if(isTemp == true){
+				billCodeSeq.setBillCodeSeqNo(curSeq);
+				billCodeSeq = this.saveBillCodeSeq(billCodeSeq);
+			}
+			return seq;
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("genBillCodeSeqError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	}
+	
+	public BillCodeSeq findBillCodeSeqByName(String billCodeSeqName, BillCodeSeqType billCodeSeqType){
+		try{	
+			List<BillCodeSeq> foundBillCodeSeqs= this.billCodeSeqDao.findBillCodeSeqByName(billCodeSeqName,billCodeSeqType.getBillCodeSeqTypeId());
+			if(foundBillCodeSeqs.size() > 0){
+				return foundBillCodeSeqs.get(0);
+			}
+			else{
+				BillCodeSeq billCodeSeq = new BillCodeSeq();
+				billCodeSeq.setBillCodeSeqName(billCodeSeqName);
+				billCodeSeq.setBillCodeSeqNo(0l);
+				billCodeSeq.setBillCodeSeqType(billCodeSeqType);
+				billCodeSeq.setLength(5l);
+				billCodeSeq = this.saveBillCodeSeq(billCodeSeq);
+				return billCodeSeq;
+			}
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("findBillCodeSeqByNameError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	}
+
+ 	public BaseDao getDao(){
+		try{ 	
+			return this.billCodeSeqDao;
+		}
+		catch(Exception e){
+			DDDException ex= new DDDException("getDaoError",e.getMessage(),e);
+	        throw ex;			
+		}		
+	}
+}

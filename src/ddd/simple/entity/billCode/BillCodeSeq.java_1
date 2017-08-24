@@ -1,0 +1,61 @@
+package ddd.simple.entity.billCode;
+
+import java.io.Serializable;
+import ddd.base.annotation.Column;
+import ddd.base.persistence.baseEntity.Entity;
+/**
+ * 编码序列
+ * @author NightGun
+ *
+ */
+@ddd.base.annotation.Entity(name="billCodeSeq",label="编码序列")
+public class BillCodeSeq  extends Entity implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
+	
+	@Column(name="billCodeSeqTypeId",composition=true,FKName="BCS_fk_BT")
+	private BillCodeSeqType billCodeSeqType;//自增类型
+	
+	@Column(name="billCodeSeqName",label="自增key")
+	private String billCodeSeqName;//自增key
+	
+	@Column(name="billCodeSeqNo",label="当前序列号")
+	private Long billCodeSeqNo;//当前序列号，下一个使用的号
+	
+	@Column(name="length",label="长度")
+	private Long length;
+	
+
+	public Long getLength() {
+		return length;
+	}
+
+	public void setLength(Long length) {
+		this.length = length;
+	}
+
+
+	public BillCodeSeqType getBillCodeSeqType() {
+		return billCodeSeqType;
+	}
+
+	public void setBillCodeSeqType(BillCodeSeqType billCodeSeqType) {
+		this.billCodeSeqType = billCodeSeqType;
+	}
+
+	public String getBillCodeSeqName() {
+		return billCodeSeqName;
+	}
+
+	public void setBillCodeSeqName(String billCodeSeqName) {
+		this.billCodeSeqName = billCodeSeqName;
+	}
+
+	public Long getBillCodeSeqNo() {
+		return billCodeSeqNo;
+	}
+
+	public void setBillCodeSeqNo(Long billCodeSeqNo) {
+		this.billCodeSeqNo = billCodeSeqNo;
+	}
+}

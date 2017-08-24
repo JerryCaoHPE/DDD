@@ -1,0 +1,245 @@
+#set ($configs=$modelItemsMap.get("configs"))
+#foreach($config in $configs) 
+#set($dataType=$config.get("dataType"))
+#if($dataType)
+#if($dataType=="text")
+<!-- 文本框  -->
+<div class="box box-element ui-draggable">
+	<a href="#close" class="remove label label-important"><i
+		class="icon-remove icon-white"></i>删除</a> <span class="drag label"><i
+		class="icon-move"></i>拖动</span> <span class="configuration">
+		<button type="button" class="btn btn-mini"
+			data-target="#editorModal" role="button" data-toggle="modal">编辑</button>
+		<span class="btn-group"> <a
+			class="btn btn-mini dropdown-toggle" data-toggle="dropdown"
+			href="#">标记 <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li class="active"><a href="#" rel="">默认</a></li>
+				<li class=""><a href="#" rel="muted">禁用</a></li>
+				<li class=""><a href="#" rel="text-warning">警告</a></li>
+				<li class=""><a href="#" rel="text-error">错误</a></li>
+				<li class=""><a href="#" rel="text-info">提示</a></li>
+				<li class=""><a href="#" rel="text-success">成功</a></li>
+			</ul>
+	</span>
+	</span>
+	<div class="preview">$!config.get("title")</div>
+	<div class="view">
+		<div class="form-group col-md-6">
+			<label class="col-md-2 control-label deplugins-orgname">$!config.get("title")</label>
+			<div class="col-md-10">
+				<input type="text"
+					config="{holderType:'input',type:'$!config.get("type")',defaultValue:'$!config.get("defaultValue")',title:'$!config.get("title")',bundle:'$!config.get("bundle")',validation:'$!config.get("checkRegular")',nullable:'$!config.get("nullable")',authority:'$!config.get("authority")',col1:'$!config.get("col1")',col2:'$!config.get("col2")',isEdit:'$!config.get("isEdit")'}"
+					class="form-control deplugins" deplugins="text" />
+			</div>
+		</div>
+	</div>
+</div>
+#elseif($dataType=="textarea")
+<!-- 多行文本  -->
+<div class="box box-element ui-draggable">
+	<a href="#close" class="remove label label-important"><i
+		class="icon-remove icon-white"></i>删除</a> <span class="drag label"><i
+		class="icon-move"></i>拖动</span> <span class="configuration">
+		<button type="button" class="btn btn-mini"
+			data-target="#editorModal" role="button" data-toggle="modal">编辑</button>
+		<span class="btn-group"> <a
+			class="btn btn-mini dropdown-toggle" data-toggle="dropdown"
+			href="#">标记 <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li class="active"><a href="#" rel="">默认</a></li>
+				<li class=""><a href="#" rel="alert-info">提示</a></li>
+				<li class=""><a href="#" rel="alert-error">错误</a></li>
+				<li class=""><a href="#" rel="alert-success">成功</a></li>
+			</ul>
+	</span>
+	</span>
+	<div class="preview">$!config.get("title")</div>
+	<div class="view">
+		<div class="form-group col-md-6">
+			<label class="col-md-2 control-label deplugins-orgname">$!config.get("title")</label>
+			<div class="col-md-10">
+				<textarea rows="5"
+					config="{holderType:'textarea',type:'$!config.get("type")',defaultValue:'$!config.get("defaultValue")',title:'$!config.get("title")',nullable:'$!config.get("nullable")',bundle:'$!config.get("bundle")',authority:'$!config.get("authority")',col1:'$!config.get("col1")',col2:'$!config.get("col2")',placeholder:'$!config.get("placeholder")',isEdit:'$!config.get("isEdit")'}"
+					class="form-control deplugins" deplugins="textarea" ></textarea>
+			</div>
+		</div>
+	</div>
+</div>
+#elseif($dataType=="datetime")
+<!-- 日期控件  -->
+<div class="box box-element ui-draggable">
+	<a href="#close" class="remove label label-important"><i
+		class="icon-remove icon-white"></i>删除</a> <span class="drag label"><i
+		class="icon-move"></i>拖动</span> <span class="configuration">
+		<button type="button" class="btn btn-mini"
+			data-target="#editorModal" role="button" data-toggle="modal">编辑</button>
+		<span class="btn-group"> <a
+			class="btn btn-mini dropdown-toggle" data-toggle="dropdown"
+			href="#">标记 <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li class="active"><a href="#" rel="">默认</a></li>
+				<li class=""><a href="#" rel="muted">禁用</a></li>
+				<li class=""><a href="#" rel="text-warning">警告</a></li>
+				<li class=""><a href="#" rel="text-error">错误</a></li>
+				<li class=""><a href="#" rel="text-info">提示</a></li>
+				<li class=""><a href="#" rel="text-success">成功</a></li>
+			</ul>
+	</span>
+	</span>
+	<div class="preview">$!config.get("title")</div>
+	<div class="view">
+		<div class="form-group col-md-6">
+			<label class="col-md-2 control-label deplugins-orgname">$!config.get("title")</label>
+			<div class="col-md-10">
+				<input type="date"
+					config="{holderType:'input',type:'$!config.get("type")',defaultValue:'$!config.get("defaultValue")',title:'$!config.get("title")',bundle:'$!config.get("bundle")',format:'$!config.get("format")',nullable:'$!config.get("nullable")',authority:'$!config.get("authority")',col1:'$!config.get("col1")',col2:'$!config.get("col2")',isEdit:'$!config.get("isEdit")'}"
+					class="form-control deplugins" deplugins="datetime" ></input>
+			</div>
+		</div>
+	</div>
+</div>
+#elseif($dataType=="choose")
+<!-- 选择框  -->
+<div class="box box-element ui-draggable">
+	<a href="#close" class="remove label label-important"><i
+		class="icon-remove icon-white"></i>删除</a> <span class="drag label"><i
+		class="icon-move"></i>拖动</span> <span class="configuration">
+		<button type="button" class="btn btn-mini"
+			data-target="#editorModal" role="button" data-toggle="modal">编辑</button>
+		<span class="btn-group"> <a
+			class="btn btn-mini dropdown-toggle" data-toggle="dropdown"
+			href="#">标记 <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li class="active"><a href="#" rel="">默认</a></li>
+				<li class=""><a href="#" rel="muted">禁用</a></li>
+				<li class=""><a href="#" rel="text-warning">警告</a></li>
+				<li class=""><a href="#" rel="text-error">错误</a></li>
+				<li class=""><a href="#" rel="text-info">提示</a></li>
+				<li class=""><a href="#" rel="text-success">成功</a></li>
+			</ul>
+	</span>
+	</span>
+	<div class="preview">$!config.get("title")</div>
+	<div class="view">
+		<div class="form-group col-md-6">
+			<label class="col-md-2 control-label deplugins-orgname">$!config.get("title")</label>
+			<div class="col-md-10">
+				<choose class="form-control deplugins" config="{holderType:'choose',type:'$!config.get("type")',orientation:'$!config.get("orientation")',title:'$!config.get("title")',bundle:'$!config.get("bundle")',dataSource:'$!config.get("dataSourceString")',nullable:'$!config.get("nullable")',authority:'$!config.get("authority")',col1:'$!config.get("col1")',col2:'$!config.get("col2")',isEdit:'$!config.get("isEdit")'}" deplugins="choose" >
+					<div>
+						#foreach($data in $!config.get("dataSource"))
+							<label style="display:inline;"><input type="radio" name="option" value="$!data" />$!data</label>
+						#end
+					</div>
+				</choose>
+			</div>
+		</div>
+	</div>
+</div>
+#elseif($dataType=="select")
+<!-- 下拉框  -->
+<div class="box box-element ui-draggable">
+	<a href="#close" class="remove label label-important"><i
+		class="icon-remove icon-white"></i>删除</a> <span class="drag label"><i
+		class="icon-move"></i>拖动</span> <span class="configuration">
+		<button type="button" class="btn btn-mini"
+			data-target="#editorModal" role="button" data-toggle="modal">编辑</button>
+		<span class="btn-group"> <a
+			class="btn btn-mini dropdown-toggle" data-toggle="dropdown"
+			href="#">标记 <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li class="active"><a href="#" rel="">默认</a></li>
+				<li class=""><a href="#" rel="muted">禁用</a></li>
+				<li class=""><a href="#" rel="text-warning">警告</a></li>
+				<li class=""><a href="#" rel="text-error">错误</a></li>
+				<li class=""><a href="#" rel="text-info">提示</a></li>
+				<li class=""><a href="#" rel="text-success">成功</a></li>
+			</ul>
+	</span>
+	</span>
+	<div class="preview">$!config.get("title")</div>
+	<div class="view">
+		<div class="form-group col-md-6">
+			<label class="col-md-2 control-label deplugins-orgname">$!config.get("title")</label>
+			<div class="col-md-10">
+				<select type="text"
+					config="{holderType:'select',type:'$!config.get("type")',defaultValue:'$!config.get("defaultValue")',title:'$!config.get("title")',bundle:'$!config.get("bundle")',dataSource:'$!config.get("dataSource")',validation:'$!config.get("validation")',authority:'$!config.get("authority")',col1:'$!config.get("col1")',col2:'$!config.get("col2")',foreignKeyView:'$!config.get("foreignKeyView")',foreignKeyValue:'$!config.get("foreignKeyValue")',isEdit:'$!config.get("isEdit")'}"
+					class="form-control deplugins" deplugins="select" >
+					<option >选项一</option>
+					<option >选项二</option>
+				</select>
+			</div>
+		</div>
+	</div>
+</div>
+#elseif($dataType=="upload")
+<!-- 上传控件 -->
+<div class="box box-element ui-draggable">
+	<a href="#close" class="remove label label-important"><i
+		class="icon-remove icon-white"></i>删除</a> <span class="drag label"><i
+		class="icon-move"></i>拖动</span> <span class="configuration">
+		<button type="button" class="btn btn-mini"
+			data-target="#editorModal" role="button" data-toggle="modal">编辑</button>
+		<span class="btn-group"> <a
+			class="btn btn-mini dropdown-toggle" data-toggle="dropdown"
+			href="#">标记 <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li class="active"><a href="#" rel="">默认</a></li>
+				<li class=""><a href="#" rel="muted">禁用</a></li>
+				<li class=""><a href="#" rel="text-warning">警告</a></li>
+				<li class=""><a href="#" rel="text-error">错误</a></li>
+				<li class=""><a href="#" rel="text-info">提示</a></li>
+				<li class=""><a href="#" rel="text-success">成功</a></li>
+			</ul>
+	</span>
+	</span>
+	<div class="preview">$!config.get("title")</div>
+	<div class="view">
+		<div class="form-group col-md-6">
+			<label class="col-md-2 control-label deplugins-orgname">$!config.get("title")</label>
+			<div class="col-md-10">
+				<input type="file"
+					config="{holderType:'input',type:'$!config.get("type")',title:'$!config.get("title")',bundle:'$!config.get("bundle")',fileType:'$!config.get("fileType")',authority:'$!config.get("authority")',col1:'$!config.get("col1")',col2:'$!config.get("col2")',bindEntity:'$!config.get("bindEntity")',isEdit:'$!config.get("isEdit")'}"'
+					class="form-control deplugins" deplugins="upload" />
+			</div>
+		</div>
+	</div>
+</div>
+#elseif($config.get("dataType")=="subTable")
+		<div class="box box-element ui-draggable">
+			<a href="#close" class="remove label label-important"><i
+				class="icon-remove icon-white"></i>删除</a> <span class="drag label"><i
+				class="icon-move"></i>拖动</span> <span class="configuration">
+				<button type="button" class="btn btn-mini"
+					data-target="#editorModal" role="button" data-toggle="modal">编辑</button>
+				<span class="btn-group"> <a
+					class="btn btn-mini dropdown-toggle" data-toggle="dropdown"
+					href="#">标记 <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li class="active"><a href="#" rel="">默认</a></li>
+						<li class=""><a href="#" rel="muted">禁用</a></li>
+						<li class=""><a href="#" rel="text-warning">警告</a></li>
+						<li class=""><a href="#" rel="text-error">错误</a></li>
+						<li class=""><a href="#" rel="text-info">提示</a></li>
+						<li class=""><a href="#" rel="text-success">成功</a></li>
+					</ul>
+			</span>
+			</span>
+			<div class="preview">$!config.get("title")</div>
+			<div class="view">
+				<div class="form-group">
+					<label class="col-md-2 control-label deplugins-orgname">$!config.get("title")</label>
+					<div class="col-md-10">
+						<table style="width:220px"
+							config="{holderType:'table',type:'$!config.get("type")',title:'$!config.get("title")',bundle:'$!config.get("bundle")',authority:'$!config.get("authority")',eachPageSize:'$!config.get("eachPageSize")',displayFields:'$!config.get("displayFields")',joinTableName:'$!config.get("joinTableName")',subModelEnglishName:'$!config.get("subModelEnglishName")',col1:'$!config.get("col1")',col2:'$!config.get("col2")',isEdit:'$!config.get("isEdit")'}"
+							class="form-control deplugins table table-bordered table-hover" deplugins="subtable" >
+							<tr ><th>列名1</th><th>列名2</th></tr>
+							<tr ><td>数据1</td><td>数据2</td></tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+#end
+#end
+#end

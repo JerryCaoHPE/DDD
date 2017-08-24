@@ -1,0 +1,20 @@
+package ddd.simple.service.billCode;
+
+import java.util.Map;
+
+import ddd.simple.service.base.BaseService; 
+import ddd.simple.entity.billCode.*;
+
+public interface BillCodeSeqTypeService {
+	public  void deleteBillCodeSeqTypeById( Long billCodeSeqTypeId);
+	
+	public BillCodeSeqType findBillCodeSeqTypeById( Long billCodeSeqTypeId);
+	 
+	public BillCodeSeqType saveBillCodeSeqType(BillCodeSeqType billCodeSeqTypeId);
+
+	public BillCodeSeqType updateBillCodeSeqType(BillCodeSeqType billCodeSeqTypeId);
+
+	public void deleteBillCodeSeqType(BillCodeSeqType billCodeSeqTypeId);
+	
+	public String genBillCodeSeq(String seqType, Map<String, String> params, Boolean isTemp);
+}

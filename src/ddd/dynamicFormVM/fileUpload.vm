@@ -1,0 +1,15 @@
+#if(!$dataResource.get('isDisplay'))
+	#if($dataResource.get('fileType')=="多图片")
+		<ddd-upload-img bind='modelData.$!dataResource.get('bundle')' ng-model="modelData.$!dataResource.get('bundle')">
+	#elseif($dataResource.get('fileType')=="单图片")
+		<dimgupload img-width='100' img-height='100' ng-model='modelData.$!dataResource.get('bundle')'></dimgupload>
+	#else
+		<dfileupload associate-form-id="modelData.EId" associate-form-name="$!{dataResource.get('bindEntity')}"></dfileupload>
+	#end
+#else
+	#if($dataResource.get('fileType')=="单图片")
+		<img ng-src={{modelData.$!dataResource.get('bundle')}} alt="图片失效">
+	#else
+		<dfileupload no-upload=true associate-form-id="modelData.EId" associate-form-name="$!{dataResource.get('bindEntity')}"></dfileupload>
+	#end
+#end

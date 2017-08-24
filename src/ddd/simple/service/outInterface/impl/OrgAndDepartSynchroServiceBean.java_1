@@ -1,0 +1,55 @@
+package ddd.simple.service.outInterface.impl;
+
+import java.sql.SQLException;
+import java.util.Date;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ddd.base.exception.DDDException;
+import ddd.simple.entity.outInterface.OutInterfaceConfig;
+import ddd.simple.service.log.LogService;
+@Service
+@Transactional
+public class OrgAndDepartSynchroServiceBean extends
+		OutInterfaceBaseServiceSupport {
+
+	@Override
+	public void excute(OutInterfaceConfig config) {
+		LogService logService = SpringByFriend.getSpringByFriend().getLogService();
+		try{
+			this.openConnection(config);
+			OrganizationSynchroService organizationSynchroService = SpringByFriend.getSpringByFriend().getOrganizationSynchroService();
+			organizationSynchroService.organizationSynchro(this.outConnection);
+			this.localConnection.commit();
+			this.outConnection.commit();
+			
+			
+			String logContent = new Date().toString()+""+config.getConfigName()+"的外部接口同步数据成功";
+			logService.logging("公司部门职员同步日志", logContent);
+		}catch(Exception e){
+			e.printStackTrace();
+			try {
+				this.localConnection.rollback();
+				this.outConnection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+				throw new DDDException(e1.getMessage());
+			}
+			
+			String logContent = new Date().toString()+""+config.getConfigName()+"的外部接口同步数据失败"+"原因是："+e.getMessage();
+			logService.logging("公司部门职员同步日志", logContent);
+			throw new DDDException(e.getMessage());
+		}finally{
+			try {
+				this.localConnection.close();
+				this.outConnection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				throw new DDDException(e.getMessage());
+			}
+		}
+		
+	}
+	
+}

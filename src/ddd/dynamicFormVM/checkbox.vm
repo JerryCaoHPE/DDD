@@ -1,0 +1,32 @@
+#set($index=0)
+#if(!$dataResource.get('isDisplay'))
+<div ng-init="$!dataResource.get('bundle')={}">
+#foreach($option in $dataResource.get('dataSource'))
+	#set($index=$index + 1)
+	<label 
+	#if($!{dataResource.get('orientation')} == '横排')
+	style="display:inline;"
+	#else
+	style="display:block;padding-left:200px;"
+	#end
+	>
+		<input type="checkbox" ng-model="modelData.$!{dataResource.get('bundle')}.option${index}" value="$!{option}" name="$!{dataResource.get('bundle')}"/>$!{option}
+	</label>
+#end　
+</div>
+#else
+<div ng-init="$!dataResource.get('bundle')={}">
+#foreach($option in $dataResource.get('dataSource'))
+	#set($index=$index + 1)
+	<label 
+	#if($!{dataResource.get('orientation')} == '横排')
+	style="display:inline;"
+	#else
+	style="display:block;padding-left:200px;"
+	#end
+	>
+		<input type="checkbox" ng-disabled="true" ng-model="modelData.$!{dataResource.get('bundle')}.option${index}" value="$!{option}" name="$!{dataResource.get('bundle')}"/>$!{option}
+	</label>
+#end　
+</div>
+#end

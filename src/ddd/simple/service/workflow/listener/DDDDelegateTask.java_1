@@ -1,0 +1,161 @@
+package ddd.simple.service.workflow.listener;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.activiti.engine.delegate.DelegateTask;
+
+public class DDDDelegateTask
+{
+	private DelegateTask delegateTask;
+	private Map<String,String> enitytColumnNameAndCaptionReflect;
+	 
+	@SuppressWarnings("unchecked")
+	public DDDDelegateTask(DelegateTask delegateTask)
+	{
+		this.delegateTask = delegateTask;
+		if(this.delegateTask.hasVariable("属性名称映射表"))
+		{
+			this.enitytColumnNameAndCaptionReflect = (Map<String,String> )delegateTask.getVariable("属性名称映射表"); 
+			
+		}
+		else
+		{
+			this.enitytColumnNameAndCaptionReflect = new HashMap<String,String>();
+		}
+	}
+	public DelegateTask getDelegateTask() {
+		return delegateTask;
+	}
+
+	public void setDelegateTask(DelegateTask delegateTask) {
+		this.delegateTask = delegateTask;
+	}
+
+	public void createVariableLocal(String arg0, Object arg1) {
+		this.delegateTask.createVariableLocal(arg0, arg1);
+	}
+//
+//	public void createVariablesLocal(Map<String, ? extends Object> arg0) {
+////		Iterable<String> iterable = arg0.keySet().iterator();
+////		this.delegateTask.createVariablesLocal(arg0);
+//	}
+	
+	public Object getVariable(String variableName) {
+		return this.delegateTask.getVariable(variableName);
+	}
+	
+	public Object getVariableByFieldName(String fieldName) 
+	{
+		Object value = null; 
+		if(enitytColumnNameAndCaptionReflect.containsKey(fieldName))
+		{
+			String attributeCaption = this.enitytColumnNameAndCaptionReflect.get(fieldName);
+			value = this.delegateTask.getVariable(attributeCaption); 
+		}
+			 
+		return value;
+	}
+	
+	public Object getVariableLocal(Object variableName) {
+		return this.delegateTask.getVariableLocal(variableName);
+	}
+
+	public Set<String> getVariableNames() {
+		return this.delegateTask.getVariableNames();
+	}
+
+	public Set<String> getVariableNamesLocal() {
+		return this.delegateTask.getVariableNamesLocal();
+	}
+
+	public Map<String, Object> getVariables() {
+		return this.delegateTask.getVariables();
+	}
+
+	public Map<String, Object> getVariablesLocal() {
+		return this.delegateTask.getVariablesLocal();
+	}
+
+	public boolean hasVariable(String variableName) {
+		return this.delegateTask.hasVariable(variableName);
+	}
+
+	public boolean hasVariableLocal(String variableName) {
+		return this.hasVariableLocal(variableName);
+	}
+
+	public boolean hasVariables() {
+		return this.delegateTask.hasVariables();
+	}
+
+	public boolean hasVariablesLocal() {
+		return this.delegateTask.hasVariablesLocal();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void removeVariable(String variableName) {
+		this.delegateTask.removeVariable(variableName);
+		
+		Map<String,String> nameReflect = (Map<String,String>)this.delegateTask.getVariable("nameReflect");
+		nameReflect.remove(variableName);
+	}
+
+	public void removeVariableLocal(String variableName) {
+		this.delegateTask.removeVariableLocal(variableName);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void removeVariables() {
+		this.delegateTask.removeVariables();
+		
+		Map<String,String> nameReflect = (Map<String,String>)this.delegateTask.getVariable("nameReflect");
+		nameReflect.clear();
+	}
+
+	public void removeVariablesLocal() {
+		this.delegateTask.removeVariablesLocal();
+	}
+
+	public void setProcessVariable(String variableName, Object variableValue) {
+		this.delegateTask.setVariable(variableName, variableValue);
+	}
+	
+	public void setProcessVariableByFieldName(String fieldName, Object fieldValue)
+	{
+		if(enitytColumnNameAndCaptionReflect.containsKey(fieldName))
+		{
+			String attributeCaption = this.enitytColumnNameAndCaptionReflect.get(fieldName);
+			this.delegateTask.setVariable(attributeCaption, fieldValue); 
+		}
+	}
+
+	public Object setVariableLocal(String variableName, Object variableValue) {
+		return this.delegateTask.setVariableLocal(variableName, variableValue);
+	}
+
+	public void setVariables(Map<String, ? extends Object> variables) {
+		this.delegateTask.setVariables(variables);
+	}
+
+	public void setVariablesLocal(Map<String, ? extends Object> variables) {
+		this.delegateTask.setVariablesLocal(variables);
+	}
+
+	public String getEventName() {
+		return this.delegateTask.getEventName();
+	}
+
+	public String getId() {
+		return this.delegateTask.getId();
+	}
+
+	public String getProcessDefinitionId() {
+		return this.delegateTask.getProcessDefinitionId();
+	}
+
+	public String getProcessInstanceId() {
+		return this.delegateTask.getProcessInstanceId();
+	}
+}

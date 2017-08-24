@@ -1,0 +1,18 @@
+#if(!$dataResource.get('isDisplay'))
+	#if($dataResource.get('format'))
+		<input ddatepicker="{format:'$!dataResource.get('format')'}" ng-model="modelData.$!{dataResource.get('bundle')}"
+			#if($!{dataResource.get('nullable')}=="是")
+				required
+			#end
+		/>
+	#else
+		<input ddatepicker="{format:'yyyy-mm-dd'}" ng-model="modelData.$!{dataResource.get('bundle')}"
+			#if($!{dataResource.get('nullable')}=="是")
+				required
+			#end
+		/>
+	#end
+#else
+<span class="label label-default">{{modelData.$!dataResource.get('bundle')}}</span>
+##<input type="text" class="form-control" ng-model="modelData.$!{dataResource.get('bundle')}" ng-disabled="true"/>
+#end

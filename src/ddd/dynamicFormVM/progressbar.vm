@@ -1,0 +1,4 @@
+<div class="progress-bar"  ng-model="modelData.$dataResource.get('title')" role="progressbar" aria-valuenow="currentRate"
+      aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+      <span class="sr-only">{{currentRate}}% 完成</span>
+</div>

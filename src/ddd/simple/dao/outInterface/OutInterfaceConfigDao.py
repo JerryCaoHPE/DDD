@@ -1,0 +1,1 @@
+#OutInterfaceConfig:EId,inputCode,operatorCode,operateDate,orgId,remark,configName,connectInfo,outQuerySql,localQuerySql,localUpdateSql,outUpdateSql,specialParam,excuteInterfaceBean,state,isImport,

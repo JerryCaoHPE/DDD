@@ -1,0 +1,1 @@
+#AttachmentGroupItem:EId,inputCode,operatorCode,operateDate,orgId,remark,name,groupItemCode,minFiles,maxFiles,fileType,attachementTemplateId,

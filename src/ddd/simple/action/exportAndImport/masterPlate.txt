@@ -1,0 +1,7 @@
+{
+"name":"ddd.simple.entity.permission.Permission",
+"uniqueField":{"name":"name"},
+"importField":{"权限点名称":"name","编码":"code","模块":"moduleId","模块2":"moduleId2"},
+"foreignKey":{"moduleId":"module@name,year,month",},
+"outInterface":ddd.simple.action.util.exportAndImport.OutInterfaceTest@test
+}

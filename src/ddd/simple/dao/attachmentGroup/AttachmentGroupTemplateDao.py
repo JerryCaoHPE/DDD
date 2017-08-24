@@ -1,0 +1,1 @@
+#AttachmentGroupTemplate:EId,inputCode,operatorCode,operateDate,orgId,remark,name,type,category,attachmentGroupItems,

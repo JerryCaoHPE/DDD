@@ -1,0 +1,129 @@
+package ddd.simple.service.billCode.impl;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ddd.base.exception.DDDException;
+import ddd.simple.dao.billCode.*;
+import ddd.simple.service.billCode.*;
+import ddd.simple.entity.billCode.*;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Service
+@Transactional
+public class BillCodeSeqTypeServiceBean  implements BillCodeSeqTypeService{
+	final Logger logger = LoggerFactory.getLogger(BillCodeSeqTypeServiceBean.class);
+
+	@Resource(name="billCodeSeqTypeDaoBean")
+	private BillCodeSeqTypeDao billCodeSeqTypeDao;
+	
+	@Resource(name="billCodeSeqServiceBean")
+	private BillCodeSeqService billCodeSeqService;
+	 
+//  缓存对象
+//	@Resource(name = "camCache")
+//	private Ehcache cache;
+	
+	public void deleteBillCodeSeqTypeById(Long billCodeSeqTypeId){
+		try{
+		 	this.billCodeSeqTypeDao.delete(BillCodeSeqType.class,billCodeSeqTypeId);
+		 	this.billCodeSeqTypeDao.flush();
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("deleteBillCodeSeqTypeByIdError",e.getMessage(),e);
+	        throw ex;			
+		}
+	}
+	
+	public BillCodeSeqType findBillCodeSeqTypeById(Long billCodeSeqTypeId){
+		try{	
+			BillCodeSeqType foundBillCodeSeqType = this.billCodeSeqTypeDao.findById(BillCodeSeqType.class,billCodeSeqTypeId);
+		 	return foundBillCodeSeqType;
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("findBillCodeSeqTypeByIdError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	} 
+	
+  
+	public BillCodeSeqType saveBillCodeSeqType(BillCodeSeqType billCodeSeqType){
+		try{		
+			BillCodeSeqType savedBillCodeSeqType = (BillCodeSeqType)this.billCodeSeqTypeDao.merge(billCodeSeqType);
+		 	this.billCodeSeqTypeDao.flush();			
+		 	return savedBillCodeSeqType;			
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("saveBillCodeSeqTypeError",e.getMessage(),e);
+	        throw ex;			
+		}			
+	}
+
+	public BillCodeSeqType updateBillCodeSeqType(BillCodeSeqType billCodeSeqType){
+		try{		
+			BillCodeSeqType updatedBillCodeSeqType = (BillCodeSeqType)this.billCodeSeqTypeDao.merge(billCodeSeqType);
+		 	this.billCodeSeqTypeDao.flush();			
+		 	return updatedBillCodeSeqType;			
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("updateBillCodeSeqTypeError",e.getMessage(),e);
+	        throw ex;			
+		}			
+	}
+
+	public void deleteBillCodeSeqType(BillCodeSeqType billCodeSeqType){
+		try{	  
+			this.billCodeSeqTypeDao.delete(billCodeSeqType);
+			this.billCodeSeqTypeDao.flush();
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("deleteBillCodeSeqTypeError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	}
+	
+	public String genBillCodeSeq(String seqType, Map<String, String> params, Boolean isTemp){
+		try{	  
+			BillCodeSeqType billCodeSeqType = this.findBillCodeSeqTypeByName(seqType);
+			String billCodeSeq = billCodeSeqType.getBillCodeSeqTypeRule();
+			Set<String> keys = params.keySet();
+			
+			for(String key : keys)
+			{
+				billCodeSeq = billCodeSeq.replace(key, params.get(key));
+			}
+			String seq = this.billCodeSeqService.genBillCodeSeq(billCodeSeq, billCodeSeqType, isTemp);
+			return seq;
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("genBillCodeSeqError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	}
+
+	public BillCodeSeqType findBillCodeSeqTypeByName(String seqType){
+		try{	  
+			List<BillCodeSeqType> billCodeSeqTypes = this.billCodeSeqTypeDao.findBillCodeSeqTypeByName(seqType);
+			if(billCodeSeqTypes.size() > 0){
+				return billCodeSeqTypes.get(0);
+			}
+			else{
+				DDDException dex = new DDDException("未找到自增编码类型","未找到自增编码类型");
+				throw dex;
+			}
+	   	}
+		catch(Exception e){
+			DDDException ex= new DDDException("findBillCodeSeqTypeByNameError",e.getMessage(),e);
+	        throw ex;			
+		}	
+	}
+	
+}

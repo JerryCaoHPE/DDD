@@ -1,0 +1,139 @@
+/**
+ * @Title: WorkflowBaseDelegate.java
+ * @Package ddd.simple.service.workflow.listener
+ * @Description: TODO(用一句话描述该文件做什么)
+ * @version V1.0
+ */
+
+package ddd.simple.service.workflow.listener;
+
+
+import javax.annotation.Resource;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+
+import ddd.simple.dao.base.BaseDao;
+import ddd.simple.dao.base.DAO;
+
+
+
+/**
+ * @author CQUTJGY jjzxjgy@126.com
+ * @date 2012-10-10 下午03:36:31
+ */
+public abstract class WorkflowBaseDelegate implements JavaDelegate {
+	
+	@Resource(name = "daoSupport1")
+	private BaseDao dao;
+	
+	private DDDDelegateExecution dddDelegateExecution;
+	
+	public DDDDelegateExecution getDddDelegateExecution() {
+		return dddDelegateExecution;
+	}
+
+	public void setDddDelegateExecution(DDDDelegateExecution dddDelegateExecution) {
+		this.dddDelegateExecution = dddDelegateExecution;
+	}
+
+	public abstract void dddExecute();
+	
+	@Override
+	public void execute(DelegateExecution delegateExecution) throws Exception 
+	{
+		this.setDddDelegateExecution(new DDDDelegateExecution(delegateExecution));
+		dddExecute();
+	}
+	
+	/**
+	 * 获取实体Id
+	 * @return
+	 */
+	public Long getEntityId()
+	{
+		return (Long)this.dddDelegateExecution.getVariable("实体Id"); 
+	}
+
+	public Object getEntity(){
+		Object entity = null;
+		try {
+			Class<?> clazz = Class.forName(this.dddDelegateExecution.getVariable("对应表名").toString());
+			Long entityId = Long.valueOf(this.dddDelegateExecution.getVariable("实体Id").toString());
+			entity = this.getDao().findById(clazz, entityId);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 获取流程定义Key
+	 * @return
+	 */
+	public String getProcessDefinitionKey()
+	{
+		return (String)this.dddDelegateExecution.getVariable("流程定义Key");
+	}
+	
+	/**
+	 * 获取视图的Key
+	 * @return
+	 */
+	public String getListViewKey()
+	{
+		return (String)this.dddDelegateExecution.getVariable("视图Key");
+	}
+	
+	/**
+	 * 获取流程描述
+	 * @return
+	 */
+	public String getDescription()
+	{
+		return (String)this.dddDelegateExecution.getVariable("流程描述");
+	}
+	
+	/**
+	 * 获取流程变量的值
+	 * @param variableName 流程变量名
+	 * @return
+	 */
+	public Object getProcessVariable(String variableName)
+	{
+		return this.dddDelegateExecution.getVariable(variableName);
+	}
+	
+	/**
+	 * 设置流程变量的值
+	 * @param variableName 流程变量名
+	 * @param variableValue 流程变量的值
+	 */
+	public void setProcessVariable(String variableName,Object variableValue)
+	{
+		this.dddDelegateExecution.setProcessVariable(variableName, variableValue);
+	}
+	
+	/**
+	 * 获取实体字段名对应的值
+	 * @param fieldName 字段名 
+	 * @return
+	 */
+	public Object getProcessVariableByFieldName(String fieldName)
+	{
+		return this.dddDelegateExecution.getVariableByFieldName(fieldName);
+	}
+	
+	/**
+	 * 设置实体字段的值
+	 * @param fieldName 字段名
+	 * @param fieldValue 值
+	 */
+	public void setProcessVariableByFieldName(String fieldName,String fieldValue)
+	{
+		this.dddDelegateExecution.setProcessVariableByFieldName(fieldName,fieldValue);
+	}
+	
+
+	
+}

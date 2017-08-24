@@ -1,0 +1,15 @@
+#if(!$dataResource.get('isDisplay'))
+#foreach($fieldName in $dataResource.keySet())
+  #if($fieldName=='value')
+    <select ng-model='modelData.$!{dataResource.get('bundle')}'>
+		#set($options=$dataResource.get('value').split(","))
+		#foreach($option in $options)
+		   <option  value=$option/>$option
+		#end
+     </select>
+  #end
+#end　
+#else
+##<input type="text" class="form-control" ng-model="modelData.$!{dataResource.get('bundle')}" ng-disabled="true"/>
+<span class="label label-default">{{modelData.$!dataResource.get('bundle')}}</span>
+#end

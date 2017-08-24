@@ -1,0 +1,1 @@
+#MemberProjection:EId,inputCode,operatorCode,operateDate,orgId,remark,memberId,memberGroupId,memberTypeId,

@@ -1,0 +1,38 @@
+package ddd.simple.entity.billCode;
+
+import java.io.Serializable;
+import ddd.base.annotation.Column;
+import ddd.base.persistence.baseEntity.Entity;
+/**
+ * 编码类型
+ * @author NightGun
+ *
+ */
+@ddd.base.annotation.Entity(name="billCodeType",label="编码类型")
+public class BillCodeType extends Entity implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
+	
+	@Column(name="billCodeTypeName",label="编码类型名称")
+	private String billCodeTypeName;
+	
+	@Column(name="billCodeRule",label="编码规则")
+	private String billCodeRule;
+
+	public String getBillCodeTypeName() {
+		return billCodeTypeName;
+	}
+
+	public void setBillCodeTypeName(String billCodeTypeName) {
+		this.billCodeTypeName = billCodeTypeName;
+	}
+
+	public String getBillCodeRule() {
+		return billCodeRule;
+	}
+
+	public void setBillCodeRule(String billCodeRule) {
+		this.billCodeRule = billCodeRule;
+	}
+
+}

@@ -1,0 +1,229 @@
+package ddd.develop;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+
+import ddd.base.util.FileUtil;
+
+public class FileMeger {
+	public static void main(String[] args) {
+		/*String a = " ( name = '重庆理工大学') and (  (  name = {name} and age = {age} ) ) ";
+		a = a.replace("{name}", "'123'");
+		System.out.println(a);*/
+		/*String s = "select * from organization where asdfjalsdjflasd";
+		String [] ss = s.split("where");
+		int index = s.indexOf("where");
+		System.out.println(index+"");*/
+		try {
+			ArrayList<String> listPutA = new ArrayList<String>();
+			ArrayList<String> listPutD = new ArrayList<String>();
+			ArrayList<String> listPutU = new ArrayList<String>();
+			// String encoding="UTF-8";
+			File file = new File("D:\\angular\\workspace\\DDD3\\src\\ddd\\simple\\util\\fileMeger.txt");
+			if (file.isFile() && file.exists()) { // 判断文件是否存在
+				InputStreamReader read = new InputStreamReader(
+						new FileInputStream(file), "GBK");// 考虑到编码格式
+				BufferedReader bufferedReader = new BufferedReader(read);
+				String lineTxt = null;
+
+				while ((lineTxt = bufferedReader.readLine()) != null) {
+					lineTxt = lineTxt.trim();
+					// list.add(lineTxt.trim());
+					String[] arry = lineTxt.trim().split(" ");
+					String value = arry[0];
+					if ("A".equals(value)||"Adding".equals(value)) {
+						listPutA.add(getPath(lineTxt));
+					} else if ("D".equals(value)||"Deleting".equals(value)) {
+						listPutD.add(getPath(lineTxt));
+					} else if ("U".equals(value)||"Sending".equals(value)) {
+						listPutU.add(getPath(lineTxt));
+					}
+				}
+				//FileMeger fileMeger = new FileMeger();
+				//fileMeger.writeTxtFile("", file);
+				read.close();
+				//new FileMeger(listPutU, listPutA, listPutD);
+			} else {
+				System.out.println("找不到指定的文件");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("主函数出错");
+		}
+	}
+
+	public static String getPath(String src) {
+
+		String[] array = src.split(" ");
+		
+		src = src.substring(array[0].length());
+		src = src.trim();
+		src = src.replaceAll("/", "\\\\");
+		return src;
+	}
+
+	public ArrayList<String> childSystem = new ArrayList<String>();
+
+	public FileMeger() {
+		//this.init();
+	}
+
+
+	
+	
+	
+	
+	
+	public FileMeger(ArrayList<String> updataFiles, ArrayList<String> addFiles,
+			ArrayList<String> deleteFiles,ArrayList<String> childSystem) {
+		this.childSystem = childSystem;
+		// 更新框架和子系统对应文件的内容ok
+		if (updataFiles!=null&&updataFiles.size() != 0) {
+			for (int i = 0; i < updataFiles.size(); i++) {
+				this.updataFile(updataFiles.get(i));
+			}
+		}
+		
+		
+		// 在子系统中添加框架中新加的文件
+		if (addFiles!=null&&addFiles.size() != 0) {
+			for (int i = 0; i < addFiles.size(); i++) {
+				this.addFile(addFiles.get(i));
+			}
+		}
+		if (deleteFiles!=null && deleteFiles.size() != 0) {
+			for (int i = 0; i < deleteFiles.size(); i++) {
+				this.deleteFile(deleteFiles.get(i));
+			}
+		}
+	}
+
+	public boolean addFile(String FilePath) {
+		String[] re = FilePath.split("\\\\");
+		String pa = "";// 源文件的文件目录
+		for (int i = 0; i < re.length - 1; i++) {
+			pa += re[i] + "\\";
+		}
+		for (int i = 0; i < childSystem.size(); i++) {
+			String childPath = this.getTargetFilePath(pa, childSystem.get(i));
+			this.addDre(childPath);
+		}
+		this.updataFile(FilePath);
+		return false;
+	}
+
+	public boolean addDre(String destDirName) {
+
+		File dir = new File(destDirName);
+		if (dir.exists()) {
+			return false;
+		}
+		if (!destDirName.endsWith(File.separator)) {
+			destDirName = destDirName + File.separator;
+		}
+		// 创建目录
+		if (dir.mkdirs()) {
+			System.out.println("创建目录" + destDirName + "成功！");
+			return true;
+		} else {
+			System.out.println("创建目录" + destDirName + "失败！");
+			return false;
+		}
+
+	}
+
+	/**
+	 * 在有文件内容更新，新建一个文件时可以调用 更新文件内容 如果tar文件不存在则系统自动创建该文件
+	 * */
+	public boolean updataFile(String src) {
+		try {
+			for (int i = 0; i < childSystem.size(); i++) {
+				/*this.writeTxtFile(
+						//将框架里面文件的内容中的DDD3替换成对应的子系统的名字
+						this.readToString(new File(src)).replaceAll("DDD3", childSystem.get(i)),
+						this.getTargetFilePath(src, childSystem.get(i))
+				);*/
+				
+				String context = FileUtil.readeString(new File(src)).replaceAll("DDD3", childSystem.get(i));
+				
+				FileUtil.writeToFile(
+						new File(this.getTargetFilePath(src, childSystem.get(i))), 
+						context
+					);
+				System.out.println(this.getTargetFilePath(src, childSystem.get(i)) + "文件更新成功");
+			}
+			return true;
+		} catch (Exception e) {
+			System.out.println(src + "文件更新失败");
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public String getTargetFilePath(String src, String childName) {
+		src = src.replaceAll("DDD3", childName);
+		return src;
+	}
+	
+	public boolean deleteFile(String file) {
+		for(int i =0;i<childSystem.size();i++){
+			String currentFile = this.getTargetFilePath(file, childSystem.get(i));
+			
+			File f = new File(currentFile);
+			if (f.exists()) {
+				if (f.delete()) {
+					System.out.println(currentFile + "删除成功");
+				} else {
+					System.out.println(currentFile + "删除失败");
+				}
+			} else {
+				System.out.println(currentFile + "文件不存在");
+			}
+		}
+		return false;
+
+	}
+
+	public boolean writeTxtFile(String content, String fileName) throws Exception {
+		
+		RandomAccessFile mm = null;
+		boolean flag = false;
+		FileOutputStream o = null;
+		try {
+			o = new FileOutputStream(new File(fileName));
+			o.write(content.getBytes("UTF-8"));
+			o.close();
+			flag = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (mm != null) {
+				mm.close();
+			}
+		}
+		return flag;
+	}
+
+	public String readToString(File file) {
+		Long filelength = file.length(); // 获取文件长度
+		byte[] filecontent = new byte[filelength.intValue()];
+		try {
+			FileInputStream in = new FileInputStream(file);
+			in.read(filecontent);
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new String(filecontent);// 返回文件内容,默认编码
+	}
+}

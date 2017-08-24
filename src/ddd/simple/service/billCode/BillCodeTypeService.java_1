@@ -1,0 +1,20 @@
+package ddd.simple.service.billCode;
+
+import java.util.Map;
+
+import ddd.simple.service.base.BaseService; 
+import ddd.simple.entity.billCode.*;
+
+public interface BillCodeTypeService{
+	public  void deleteBillCodeTypeById( Long billCodeTypeId);
+	
+	public BillCodeType findBillCodeTypeById( Long billCodeTypeId);
+	 
+	public BillCodeType saveBillCodeType(BillCodeType billCodeTypeId);
+
+	public BillCodeType updateBillCodeType(BillCodeType billCodeTypeId);
+
+	public void deleteBillCodeType(BillCodeType billCodeTypeId);
+	
+	public String genBillCode(String billCodeTypeName, Map<String, String> params, Boolean isTemp);
+}

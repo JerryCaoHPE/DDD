@@ -1,0 +1,12 @@
+package ddd.simple.dao.billCode;
+
+import java.util.List;
+
+import ddd.simple.dao.base.BaseDaoInterface;
+import ddd.simple.entity.billCode.BillCodeSeqType;
+
+
+public interface BillCodeSeqTypeDao extends BaseDaoInterface{
+
+	public List<BillCodeSeqType> findBillCodeSeqTypeByName(String seqType);
+}

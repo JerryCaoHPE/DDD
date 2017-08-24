@@ -1,0 +1,17 @@
+<div class="container-fluid">
+	<div class="col-md-12">
+		#foreach($config in ${configs})
+			<div class="form-group #if($config.get('layoutStyle')) col-md-${config.get('layoutStyle')} #else col-md-12 #end"
+				#if($config.get('authority')&&$config.get('authority')!="")
+					ng-init="hasAuthority('$!config.get('bundle')','$!config.get('authority')')" 
+					ng-show="$!{config.get('bundle')}.show==true"
+				#end
+				#if($config.get('defaultValue')&&$config.get('defaultValue')!="")
+					ng-init="showExpression('$!config.get('bundle')','$!config.get('defaultValue')')"
+				#end>
+				<label class="#if($config.get('col1')) col-md-${config.get('col1')} #else col-md-2 #end control-label deplugins-orgname">$!{config.get('title')}</label>
+				<div class="#if($config.get('col2')) col-md-${config.get('col2')} #else col-md-10 #end">$!{config.get('itemHtml')}</div>
+			</div>
+		#end
+	</div>
+</div>

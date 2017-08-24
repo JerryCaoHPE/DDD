@@ -1,0 +1,37 @@
+#if(!$dataResource.get('isDisplay'))
+<dreference id="$!dataResource.get('dataSource')" 
+		list-view-key="$!dataResource.get('dataSource')" 
+		ng-model="modelData.$!{dataResource.get('bundle')}" 
+		name="$!{dataResource.get('bundle').replaceAll('[.]','')}" 
+#if($!{dataResource.get('foreignKeyValue')})
+		bind-field="${dataResource.get('foreignKeyValue')}" 
+		only-use-show-filed=true 
+		multi-select=true
+#end
+#if($!{dataResource.get('foreignKeyView')})
+		show-model-filed="$dataResource.get('foreignKeyView')" 
+#else
+		show-model-filed="EId" 
+#end
+		#if($!{dataResource.get('nullable')}=="是")
+			 required="required"
+		#end
+></dreference>
+#else
+<dreference id="$!dataResource.get('dataSource')" 
+		display-only=true
+		list-view-key="$!dataResource.get('dataSource')" 
+		ng-model="modelData.$!{dataResource.get('bundle')}" 
+		name="$!{dataResource.get('bundle').replaceAll('[.]','')}" 
+#if($!{dataResource.get('foreignKeyValue')})
+		bind-field="${dataResource.get('foreignKeyValue')}" 
+		only-use-show-filed=true 
+		multi-select=true
+#end
+#if($!{dataResource.get('foreignKeyView')})
+		show-model-filed="$dataResource.get('foreignKeyView')" 
+#else
+		show-model-filed="EId" 
+#end
+></dreference>
+#end

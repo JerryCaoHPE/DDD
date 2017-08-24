@@ -1,0 +1,1 @@
+<span>{{modelData.$dataResource.get('title')}}</span>

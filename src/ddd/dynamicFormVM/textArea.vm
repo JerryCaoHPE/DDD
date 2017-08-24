@@ -1,0 +1,12 @@
+#if(!$dataResource.get('isDisplay'))
+<textarea class="form-control" ng-model="modelData.$!{dataResource.get('bundle')}"
+#set ($relatedParameters=$dataResource.get("relatedParameters"))
+   style="width:100%;height:200px" 
+   placeholder="$!{dataResource.get('placeholder')}"
+   #if($!{dataResource.get('nullable')}=="是")
+		required
+	#end
+ ></textarea>
+#else
+<p class="ng-binding" ng-init="trustAsHtml('$!dataResource.get('bundle')')" ng-bind-html="modelData.$!dataResource.get('bundle')"></p>
+#end
